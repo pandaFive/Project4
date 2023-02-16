@@ -80,7 +80,7 @@
                         <option>HDD</option>
                         <option>SSD</option>
                     </select>
-                    <!-- step 4 storage storage -->
+                    <!-- step 4 storage storage データ量 -->
                     <label class="px-4 col-form-label">Storage</label>
                     <select id="storage" class="form-control col-1">
                         <option>1</option>
@@ -101,16 +101,18 @@
                     <div class="col-sm-10">
                         <!-- add button -->
                         <button id="addBtn" type="button" class="btn btn-primary mr-2">Add PC</button>
-                        <!-- clear button -->
+                        <!-- clear button 結果表示画面に表示されているアセットをすべて消す -->
                         <button id="clearBtn" type="button" class="btn btn-secondary mr-2">Clear Result</button>
-                        <label class="col-form-label text-danger">クリックされると以下に結果を表示または結果を消去</label>
+                        <label class="col-form-label text-danger">クリックされると以下に結果を追加または結果を消去</label>
                     </div>
                 </div>
             </form>
             <!-- 結果表示画面 -->
             <div class="mb-4 p-2 bg-white">
                 <div class="my-3 ml-2 mr-0 row">
+                    <!-- ナンバリング -->
                     <h5 class="col-sm-1">PC1</h5>
+                    <!-- PCの構成 -->
                     <div class="col-sm-6">
                         <h6>PC1 configuration</h6>
                         <p>CPU: brand model</p>
@@ -118,12 +120,14 @@
                         <p>Memory: brand model num</p>
                         <p>Storage: type storage brand model</p>
                     </div>
+                    <!-- PCのスペック -->
                     <div class="col-sm-5">
                         <h6>PC1 specs</h6>
                         <p>Gaming : 100%</p>
                         <p>Work : 100%</p>
                     </div>
                 </div>
+                <!-- 2つめのPC -->
                 <div class="my-3 ml-2 mr-0 row">
                     <h5 class="col-sm-1">PC1</h5>
                     <div class="col-sm-6">
