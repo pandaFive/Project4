@@ -31,21 +31,39 @@ function createOption(n, part){
     return res;
 }
 
+// optionを実装する関数(項目ごとの依存関係を解決することはない)
 function addOption(parts, element, parent){
     fetch(config.url + "?type=" + parts).then(response => response.json().then(data =>{
         parent.innerHTML = createOption(data, element)
+        console.log(data[0])
     }))
 }
 
-addOption("cpu", "Brand", config.cpuBrand);
-addOption("cpu", "Model", config.cpuModel);
-addOption("gpu", "Brand", config.gpuBrand);
+// addOption("cpu", "Brand", config.cpuBrand);
+// addOption("cpu", "Model", config.cpuModel);
+// addOption("gpu", "Brand", config.gpuBrand);
 addOption("ram", "Model", config.memoryModel);
+addOption("ssd", "Model", config.storageModel);
 
+
+// clear button の機能実装
 config.clear.addEventListener("click", function(){
     config.results.innerHTML = "";
     config.pcNumber = 1;
 })
+
+// getStorageCapacityをテストする処理
+// fetch(config.url + "?type=" + "ssd").then(response => response.json().then(data =>{
+//     for(let i in data) {
+//         current = data[i]
+//         console.log(getStorageCapacity(data[i]["Model"]))
+//     }
+// }))
+// storage文字列を解析する関数capacityを取得する
+function getStorageCapacity(model){
+    return model.substring(model.lastIndexOf(" ")+1)
+}
+
 
 /*
 一々fetchで読み込む形に変更
