@@ -8,9 +8,13 @@ const config = {
     memoryBrand: document.getElementById("memoryBrand"),
     memoryModel: document.getElementById("memoryModel"),
     storageType: document.getElementById("storageType"),
-    storage: document.getElementById("storage"),
+    storageCapacity: document.getElementById("storageCapacity"),
     storageBrand: document.getElementById("storageBrand"),
     storageModel: document.getElementById("storageModel"),
+    add: document.getElementById("addBtn"),
+    clear: document.getElementById("clearBtn"),
+    results: document.getElementById("results"),
+    pcNumber: 1,
 }
 
 // optionを文字列として生成する関数
@@ -37,6 +41,11 @@ addOption("cpu", "Brand", config.cpuBrand);
 addOption("cpu", "Model", config.cpuModel);
 addOption("gpu", "Brand", config.gpuBrand);
 addOption("ram", "Model", config.memoryModel);
+
+config.clear.addEventListener("click", function(){
+    config.results.innerHTML = "";
+    config.pcNumber = 1;
+})
 
 /*
 一々fetchで読み込む形に変更

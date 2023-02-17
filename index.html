@@ -10,9 +10,9 @@
     <link rel="stylesheet" href="style.css">
     <title>Computer Builder</title>
 </head>
-<body>
+<body class="bg-light">
     <!-- ページ全体の規定 -->
-    <div class="vh-100 bg-light d-flex justify-content-center flex-wrap">
+    <div class="d-flex justify-content-center flex-wrap">
         <!-- 一番上の帯タイトル -->
         <div class="bg-secondary col-12 text-center py-3">
             <h3 class="text-white">Build Your Own PC</h3>
@@ -80,9 +80,9 @@
                         <option>HDD</option>
                         <option>SSD</option>
                     </select>
-                    <!-- step 4 storage storage データ量 -->
+                    <!-- step 4 storage capacity データ量 -->
                     <label class="px-4 col-form-label">Storage</label>
-                    <select id="storage" class="form-control col-1">
+                    <select id="storageCapacity" class="form-control col-1">
                         <option>1</option>
                     </select>
                     <!-- step 4 storage brand -->
@@ -108,7 +108,7 @@
                 </div>
             </form>
             <!-- 結果表示画面 -->
-            <div class="mb-4 p-2 bg-white">
+            <div id="results" class="mb-4 p-2 bg-white">
                 <div class="my-3 ml-2 mr-0 row">
                     <!-- ナンバリング -->
                     <h5 class="col-sm-1">PC1</h5>
