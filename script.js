@@ -19,6 +19,7 @@ const config = {
 
 // optionを文字列として生成する関数
 function createOption(n, part){
+    // 重複を取り除くためのmap
     let arr = []
     res = `<option></option>`
     for (let i = 0; i < n.length; i++){
@@ -52,6 +53,37 @@ config.clear.addEventListener("click", function(){
     config.pcNumber = 1;
 })
 
+
+// getMemoryCountをテストする処理
+// fetch(config.url + "?type=ram").then(response => response.json().then(data =>{
+//     for (let i in data) {
+//         current = data[i]
+//         console.log(getMemoryCount(data[i]["Model"]));
+//     }
+// }))
+// memoryの文字列を解析してmemoryの本数をとる関数
+function getMemoryCount(model){
+    return model.substring(model.lastIndexOf(" ")+1, model.lastIndexOf("x"));
+}
+
+// getTotalMemoryCapacityをテストする処理
+// fetch(config.url + "?type=ram").then(response => response.json().then(data =>{
+//     for (let i in data) {
+//         current = data[i]
+//         console.log(getTotalMemoryCapacity(data[i]["Model"]));
+//     }
+// }))
+// memoryの合計容量をとる関数 内部でgetMemoryCountを使用
+function getTotalMemoryCapacity(model){
+    let indexToUnit = model.length-2
+    let count = getMemoryCount(model)
+
+    let unit = model.substring(indexToUnit);
+    let total = (parseInt(count) * parseInt(model.substring(model.lastIndexOf("x")+1, indexToUnit))).toString();
+    return total + unit
+}
+
+
 // getStorageCapacityをテストする処理
 // fetch(config.url + "?type=" + "ssd").then(response => response.json().then(data =>{
 //     for(let i in data) {
@@ -61,7 +93,7 @@ config.clear.addEventListener("click", function(){
 // }))
 // storage文字列を解析する関数capacityを取得する
 function getStorageCapacity(model){
-    return model.substring(model.lastIndexOf(" ")+1)
+    return model.substring(model.lastIndexOf(" ")+1);
 }
 
 
