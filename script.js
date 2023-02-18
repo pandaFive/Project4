@@ -96,6 +96,23 @@ function getStorageCapacity(model){
     return model.substring(model.lastIndexOf(" ")+1);
 }
 
+// resultCalculatorをテストする処理
+// console.log(resultCalculator("Work", 100, 100, 120, 100));
+// console.log(resultCalculator("Game", 100, 100, 120, 100));
+// 結果のタイプ Game or Workと各部品のbenchmark(int)を入力して結果を出力
+function resultCalculator(type, cpu, gpu, memory, storage){
+    const cpuPer = 0.6;
+    const gpuPer = 0.25;
+    let memoryPer = 0.125;
+    let storagePer = 0.025;
+
+    if (type == "Work"){
+        memoryPer = 0.1;
+        storagePer = 0.05;
+    }
+
+    return cpu*cpuPer + gpu* gpuPer + memory*memoryPer + storage*storagePer;
+}
 
 /*
 一々fetchで読み込む形に変更
