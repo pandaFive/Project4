@@ -13,18 +13,20 @@
 - ~~APIを取得する処理の実装~~
 - ~~HTMLの各selectのoptionを変更する処理の実装~~
 - 各stepごとのoptionに関する依存関係を実装する
-  - step毎にfetchしてその中でmapとか作って処理する
+  - step毎にfetchしてその中でmapとか作って処理する必要はない
+  - fetch外部の変数に普通にデータを保存できるので大丈夫
   - addOption及びcreateOptionは改造する必要があると思う
 - ボタンの機能を実装する
   - add button
   - ~~clear button~~
 - ~~結果を計算する関数の実装~~
 - 結果の表示機能を実装する
+  - optionのvalueにBenchmarkの値を入れる
 - 取得した文字列の解析をする機能の実装
   - ~~memory how many~~
   - ~~storage capacity~~
 
-### 勉強すること
+### 次やろうとしていたこと
 
-- fetchのなかで外の変数をいじる方法
-- .thenについて学ぶのが良いか？
+- resultCalculatorに値を入れる方法を考えていた
+- 今のところ各fetchの中でしか値を扱えないので4つの値をすべて入力するのが難しい

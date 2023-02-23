@@ -1,10 +1,16 @@
 const config = {
     url:  "https://api.recursionist.io/builder/computers",
+    cpuData: [],
+    gpuData: [],
+    memoryData: [],
+    hddData: [],
+    ssdData: [],
     cpuBrand: document.getElementById("cpuBrand"),
     cpuModel: document.getElementById("cpuModel"),
     gpuBrand: document.getElementById("gpuBrand"),
     gpuModel: document.getElementById("gpuModel"),
     memoryNum: document.getElementById("memoryNum"),
+    memoryCapacity: document.getElementById("memoryCapacity"),
     memoryBrand: document.getElementById("memoryBrand"),
     memoryModel: document.getElementById("memoryModel"),
     storageType: document.getElementById("storageType"),
@@ -17,35 +23,85 @@ const config = {
     pcNumber: 1,
 }
 
+// APIを取得する関数取得したデータはconfig.dataに保存される
+function getAPI(part){
+    fetch("https://api.recursionist.io/builder/computers?type=" + part)
+        .then(response => response.json()
+        .then(data =>{
+            initialOption(data, part)
+            if(part === "cpu") config.cpuData = data;
+            else if(part === "gpu") config.gpuData = data;
+            else if(part === "ram") config.memoryData = data;
+            else if(part === "hdd") config.hddData = data;
+            else config.ssdData = data;
+        }));
+}
+
+// optionの初期化をする関数
+function initialOption(data, part){
+    if(part === "cpu"){
+        addOption(data, "Model", config.cpuModel);
+        addOption(data, "Brand", config.cpuBrand);
+    }
+    else if(part === "gpu"){
+        addOption(data, "Model", config.gpuModel);
+        addOption(data, "Brand", config.gpuBrand);
+    }
+    else if(part === "ram"){
+        addOption(data, "Model", config.memoryModel);
+        addOption(data, "Brand", config.memoryBrand);
+        addOption(data, "num", config.memoryNum);
+        addOption(data, "capacity", config.memoryCapacity);
+    }
+    else if(part === "hdd"){
+        addOption(data, "Brand", config.storageBrand);
+        addOption(data, "capacity", config.storageCapacity);
+        addOption(data, "Model", config.storageModel);
+    }
+    else{
+        addOption(data, "Brand", config.storageBrand);
+        addOption(data, "capacity", config.storageCapacity);
+        addOption(data, "Model", config.storageModel);
+    }
+}
+
+// 初期化関数(optionの初期化とconfig.dataのsetをする)
+function initializer(){
+    getAPI("cpu");
+    getAPI("gpu");
+    getAPI("ram");
+    getAPI("hdd");
+    getAPI("ssd");
+}
+initializer();
+
 // optionを文字列として生成する関数
-function createOption(n, part){
+function createOption(APIData, element){
     // 重複を取り除くためのmap
     let arr = []
     res = `<option></option>`
-    for (let i = 0; i < n.length; i++){
-        let current = n[i][part]
-        if (!arr.includes(current)){
-            res += `<option>${current}</option>`
-            arr.push(current)
+    // partがssdの時戦闘の空白選択肢を削除
+    if(APIData[0].Type === "SSD") res = "";
+    for (let i = 0; i < APIData.length; i++){
+        let current = APIData[i];
+        let currentElement = current[element]
+        if (!arr.includes(currentElement)){
+            res += `<option>${currentElement}</option>`
+            arr.push(currentElement)
         }
     }
     return res;
 }
 
-// optionを実装する関数(項目ごとの依存関係を解決することはない)
-function addOption(parts, element, parent){
-    fetch(config.url + "?type=" + parts).then(response => response.json().then(data =>{
-        parent.innerHTML = createOption(data, element)
-        console.log(data[0])
-    }))
+// optionを追加する
+function addOption(data, element, parent){
+    parent.innerHTML += createOption(data, element);
 }
 
-// addOption("cpu", "Brand", config.cpuBrand);
-// addOption("cpu", "Model", config.cpuModel);
-// addOption("gpu", "Brand", config.gpuBrand);
-addOption("ram", "Model", config.memoryModel);
-addOption("ssd", "Model", config.storageModel);
-
+// optionを変更する関数(元の状態は削除される)
+function changeOption(data, element, parent){
+    parent.innerHTML = createOption(data, element);
+}
 
 // clear button の機能実装
 config.clear.addEventListener("click", function(){
@@ -53,26 +109,11 @@ config.clear.addEventListener("click", function(){
     config.pcNumber = 1;
 })
 
-
-// getMemoryCountをテストする処理
-// fetch(config.url + "?type=ram").then(response => response.json().then(data =>{
-//     for (let i in data) {
-//         current = data[i]
-//         console.log(getMemoryCount(data[i]["Model"]));
-//     }
-// }))
 // memoryの文字列を解析してmemoryの本数をとる関数
 function getMemoryCount(model){
     return model.substring(model.lastIndexOf(" ")+1, model.lastIndexOf("x"));
 }
 
-// getTotalMemoryCapacityをテストする処理
-// fetch(config.url + "?type=ram").then(response => response.json().then(data =>{
-//     for (let i in data) {
-//         current = data[i]
-//         console.log(getTotalMemoryCapacity(data[i]["Model"]));
-//     }
-// }))
 // memoryの合計容量をとる関数 内部でgetMemoryCountを使用
 function getTotalMemoryCapacity(model){
     let indexToUnit = model.length-2
@@ -83,22 +124,11 @@ function getTotalMemoryCapacity(model){
     return total + unit
 }
 
-
-// getStorageCapacityをテストする処理
-// fetch(config.url + "?type=" + "ssd").then(response => response.json().then(data =>{
-//     for(let i in data) {
-//         current = data[i]
-//         console.log(getStorageCapacity(data[i]["Model"]))
-//     }
-// }))
 // storage文字列を解析する関数capacityを取得する
 function getStorageCapacity(model){
     return model.substring(model.lastIndexOf(" ")+1);
 }
 
-// resultCalculatorをテストする処理
-// console.log(resultCalculator("Work", 100, 100, 120, 100));
-// console.log(resultCalculator("Game", 100, 100, 120, 100));
 // 結果のタイプ Game or Workと各部品のbenchmark(int)を入力して結果を出力
 function resultCalculator(type, cpu, gpu, memory, storage){
     const cpuPer = 0.6;
@@ -115,9 +145,6 @@ function resultCalculator(type, cpu, gpu, memory, storage){
 }
 
 /*
-一々fetchで読み込む形に変更
-他にやり方があるかもしれないが取り敢えずそれでいく
-optionの生成は取り敢えず関数を作ったのでOK
-後はpartsごとにelementの変更による連携と
-結果の計算関数を作る
+初期化する関数をできた途中の変更を反映する関数を作る必要がある
+またmemoryとstorageの数と容量をどうやって実装するかも考える必要があります
 */
