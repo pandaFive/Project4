@@ -123,7 +123,10 @@ function createOption(APIData, element){
         let current = APIData[i];
         let currentElement = current[element]
         if (!arr.includes(currentElement)){
-            res += `<option>${currentElement}</option>`
+            if (element === "Model"){
+                res += `<option value="${currentElement + " " + current.Benchmark}">${currentElement}</option>`
+            }
+            else res += `<option>${currentElement}</option>`
             arr.push(currentElement)
         }
     }
@@ -135,11 +138,101 @@ function changeOption(data, element, parent){
     parent.innerHTML = createOption(data, element);
 }
 
+
+/*
+button関係の処理の実装
+*/
+
+config.add.addEventListener("click", function(){
+    checkAdd();
+})
+
+// add button が有効なのか判定し有効ならそのまま続行、無効ならalert
+function checkAdd(){
+    let cpu = config.cpuModel.value
+    let gpu = config.gpuModel.value
+    let ram = config.memoryModel.value
+    let storage = config.storageModel.value
+
+    if (cpu === "" || gpu === "" || ram === "" || storage === ""){
+        alert("Modelが選択されていないパーツがあります")
+        return;
+    }
+    else{
+        let cpuBenchmark = getBenchmark(cpu);
+        let gpuBenchmark = getBenchmark(gpu);
+        let ramBenchmark = getBenchmark(ram);
+        let storageBenchmark = getBenchmark(storage);
+
+        let game = resultCalculator("game", cpuBenchmark, gpuBenchmark, ramBenchmark, storageBenchmark);
+        let work = resultCalculator("work", cpuBenchmark, gpuBenchmark, ramBenchmark, storageBenchmark);
+
+        config.results.innerHTML += createResult(game, work)
+        config.pcNumber++;
+    }
+}
+
+// 各step のmodelのvalueからbenchmarkをintで取得する関数
+function getBenchmark(value){
+    let res = value.substring(value.lastIndexOf(" ")+1);
+    return parseInt(res);
+}
+
+// 各step のmodelのvalueからmodelをstringで取得する関数
+function getModel(value){
+    return value.substring(0, value.lastIndexOf(" "));
+}
+
+// 結果のタイプ Game or Workと各部品のbenchmark(int)を入力して結果を出力
+function resultCalculator(type, cpu, gpu, memory, storage){
+    const cpuPer = 0.6;
+    const gpuPer = 0.25;
+    let memoryPer = 0.125;
+    let storagePer = 0.025;
+
+    if (type == "Work"){
+        memoryPer = 0.1;
+        storagePer = 0.05;
+    }
+
+    return (cpu*cpuPer + gpu* gpuPer + memory*memoryPer + storage*storagePer).toFixed(2);
+}
+
+// resultのhtml(string)を生成する
+function createResult(game, work){
+    res = `
+                <div class="my-3 ml-2 mr-0 row">
+                    <!-- ナンバリング -->
+                    <h5 class="col-sm-1">PC${config.pcNumber}</h5>
+                    <!-- PCの構成 -->
+                    <div class="col-sm-6">
+                        <h6>PC${config.pcNumber} configuration</h6>
+                        <p>CPU: ${getModel(config.cpuModel.value)}</p>
+                        <p>GPU: ${getModel(config.gpuModel.value)}</p>
+                        <p>Memory: ${getModel(config.memoryModel.value)} num</p>
+                        <p>Storage: type storage ${getModel(config.storageModel.value)}</p>
+                    </div>
+                    <!-- PCのスペック -->
+                    <div class="col-sm-5">
+                        <h6>PC${config.pcNumber} specs</h6>
+                        <p>Gaming : ${game}%</p>
+                        <p>Work : ${work}%</p>
+                    </div>
+                </div>
+    `
+    return res;
+}
+
 // clear button の機能実装
 config.clear.addEventListener("click", function(){
     config.results.innerHTML = "";
     config.pcNumber = 1;
 })
+
+
+
+
+
 
 // memoryの文字列を解析してmemoryの本数をとる関数
 function getMemoryCount(model){
@@ -163,21 +256,6 @@ function getStorageCapacity(model){
     model = model.substring(0, unitIndex+2)
 
     return model.substring(model.lastIndexOf(" ")+1);
-}
-
-// 結果のタイプ Game or Workと各部品のbenchmark(int)を入力して結果を出力
-function resultCalculator(type, cpu, gpu, memory, storage){
-    const cpuPer = 0.6;
-    const gpuPer = 0.25;
-    let memoryPer = 0.125;
-    let storagePer = 0.025;
-
-    if (type == "Work"){
-        memoryPer = 0.1;
-        storagePer = 0.05;
-    }
-
-    return cpu*cpuPer + gpu* gpuPer + memory*memoryPer + storage*storagePer;
 }
 
 /*
