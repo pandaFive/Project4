@@ -3,8 +3,7 @@ const config = {
     cpuData: [],
     gpuData: [],
     memoryData: [],
-    hddData: [],
-    ssdData: [],
+    storageData: [],
     cpuBrand: document.getElementById("cpuBrand"),
     cpuModel: document.getElementById("cpuModel"),
     gpuBrand: document.getElementById("gpuBrand"),
@@ -23,48 +22,6 @@ const config = {
     pcNumber: 1,
 }
 
-// APIを取得する関数取得したデータはconfig.dataに保存される
-function getAPI(part){
-    fetch("https://api.recursionist.io/builder/computers?type=" + part)
-        .then(response => response.json()
-        .then(data =>{
-            initialOption(data, part)
-            if(part === "cpu") config.cpuData = data;
-            else if(part === "gpu") config.gpuData = data;
-            else if(part === "ram") config.memoryData = data;
-            else if(part === "hdd") config.hddData = data;
-            else config.ssdData = data;
-        }));
-}
-
-// optionの初期化をする関数
-function initialOption(data, part){
-    if(part === "cpu"){
-        addOption(data, "Model", config.cpuModel);
-        addOption(data, "Brand", config.cpuBrand);
-    }
-    else if(part === "gpu"){
-        addOption(data, "Model", config.gpuModel);
-        addOption(data, "Brand", config.gpuBrand);
-    }
-    else if(part === "ram"){
-        addOption(data, "Model", config.memoryModel);
-        addOption(data, "Brand", config.memoryBrand);
-        addOption(data, "num", config.memoryNum);
-        addOption(data, "capacity", config.memoryCapacity);
-    }
-    else if(part === "hdd"){
-        addOption(data, "Brand", config.storageBrand);
-        addOption(data, "capacity", config.storageCapacity);
-        addOption(data, "Model", config.storageModel);
-    }
-    else{
-        addOption(data, "Brand", config.storageBrand);
-        addOption(data, "capacity", config.storageCapacity);
-        addOption(data, "Model", config.storageModel);
-    }
-}
-
 // 初期化関数(optionの初期化とconfig.dataのsetをする)
 function initializer(){
     getAPI("cpu");
@@ -75,13 +32,93 @@ function initializer(){
 }
 initializer();
 
+// APIを取得する関数取得したデータはconfig.dataに保存される
+function getAPI(part){
+    fetch("https://api.recursionist.io/builder/computers?type=" + part)
+        .then(response => response.json()
+        .then(data =>{
+            initialOption(data, part)
+        }));
+}
+
+// optionの初期化をする関数
+function initialOption(data, part){
+    if(part === "cpu"){
+        addOption(data, "Model", config.cpuModel);
+        addOption(data, "Brand", config.cpuBrand);
+        config.cpuData = data;
+    }
+    else if(part === "gpu"){
+        addOption(data, "Model", config.gpuModel);
+        addOption(data, "Brand", config.gpuBrand);
+        config.gpuData = data;
+    }
+    else if(part === "ram"){
+        data = addNumAndCapacity(data);
+        addOption(data, "Model", config.memoryModel);
+        addOption(data, "Brand", config.memoryBrand);
+        addOption(data, "num", config.memoryNum);
+        addOption(data, "capacity", config.memoryCapacity);
+        config.memoryData = data;
+    }
+    else if(part === "hdd"){
+        data = addNumAndCapacity(data);
+        config.storageData = data;
+    }
+    else{
+        data = addNumAndCapacity(data);
+        data = data.concat(config.storageData)
+        data.sort(function(a,b) {
+            if (getCapacityGBNum(a.capacity) > getCapacityGBNum(b.capacity)) return -1;
+            if (getCapacityGBNum(a.capacity) < getCapacityGBNum(b.capacity)) return 1;
+            return 0
+        });
+        addOption(data, "Brand", config.storageBrand);
+        addOption(data, "capacity", config.storageCapacity);
+        addOption(data, "Model", config.storageModel);
+        config.storageData = data;
+    }
+}
+
+// stringのTBとGBを単位をGBにそろえてintで返す
+function getCapacityGBNum(capacityString){
+    let num = parseInt(capacityString.substring(0, capacityString.length-2));
+    if (capacityString.indexOf("T") !== -1){
+        return 1000*num;
+    }
+    return num;
+}
+
+// ramとstorageのdataにcapacityを追加しramにはさらにnum(本数)を追加する
+function addNumAndCapacity(data){
+    let type = data[0]["Type"];
+    if(type === "RAM"){
+        for(let i = 0; i < data.length; i++){
+            let current = data[i];
+            current["num"] = getMemoryCount(current["Model"]);
+            current["capacity"] = getTotalMemoryCapacity(current["Model"]);
+        }
+    }
+    else if(type === "SSD" || type === "HDD"){
+        for(let i = 0; i < data.length; i++){
+            let current = data[i];
+            current["capacity"] = getStorageCapacity(current["Model"]);
+        }
+    }
+    return data;
+}
+
+// optionを追加する
+function addOption(data, element, parent){
+    parent.innerHTML += createOption(data, element);
+}
+
 // optionを文字列として生成する関数
 function createOption(APIData, element){
     // 重複を取り除くためのmap
     let arr = []
     res = `<option></option>`
-    // partがssdの時戦闘の空白選択肢を削除
-    if(APIData[0].Type === "SSD") res = "";
+
     for (let i = 0; i < APIData.length; i++){
         let current = APIData[i];
         let currentElement = current[element]
@@ -91,11 +128,6 @@ function createOption(APIData, element){
         }
     }
     return res;
-}
-
-// optionを追加する
-function addOption(data, element, parent){
-    parent.innerHTML += createOption(data, element);
 }
 
 // optionを変更する関数(元の状態は削除される)
@@ -126,6 +158,10 @@ function getTotalMemoryCapacity(model){
 
 // storage文字列を解析する関数capacityを取得する
 function getStorageCapacity(model){
+    // Gold 8TB (256MB Cache 2017)などから余計な情報を取り除く
+    let unitIndex = model.indexOf("TB") == -1? model.indexOf("GB"): model.indexOf("TB");
+    model = model.substring(0, unitIndex+2)
+
     return model.substring(model.lastIndexOf(" ")+1);
 }
 
@@ -145,6 +181,6 @@ function resultCalculator(type, cpu, gpu, memory, storage){
 }
 
 /*
-初期化する関数をできた途中の変更を反映する関数を作る必要がある
-またmemoryとstorageの数と容量をどうやって実装するかも考える必要があります
+add buttonの挙動を実装する
+項目間の依存関係を実装する
 */
