@@ -207,10 +207,10 @@ function createResult(game, work){
                     <!-- PCの構成 -->
                     <div class="col-sm-6">
                         <h6>PC${config.pcNumber} configuration</h6>
-                        <p>CPU: ${getModel(config.cpuModel.value)}</p>
-                        <p>GPU: ${getModel(config.gpuModel.value)}</p>
-                        <p>Memory: ${getModel(config.memoryModel.value)} num</p>
-                        <p>Storage: type storage ${getModel(config.storageModel.value)}</p>
+                        <p>CPU: <strong>${config.cpuBrand.value}</strong><br> ${getModel(config.cpuModel.value)}</p>
+                        <p>GPU: <strong>${config.gpuBrand.value}</strong><br> ${getModel(config.gpuModel.value)}</p>
+                        <p>Memory: <strong>${config.memoryBrand.value}</strong><br> ${getModel(config.memoryModel.value)}</p>
+                        <p>Storage: <strong>${config.storageBrand.value}</strong><br> ${getModel(config.storageModel.value)}</p>
                     </div>
                     <!-- PCのスペック -->
                     <div class="col-sm-5">
@@ -230,9 +230,52 @@ config.clear.addEventListener("click", function(){
 })
 
 
+/*
+依存関係の解決について
+*/
 
+// cpuかgpuのモデルがチェンジした時の挙動、パーツ名"cpu" or "gpu"を引数に取る
+function changeCpuModelOrGpuModel(part){
+    let modelHTML = part === "cpu"? config.cpuModel: config.gpuModel;
+    let brandHTML = part === "cpu"? config.cpuBrand: config.gpuBrand
 
+    modelHTML.addEventListener("change", function(){
+        let data = part === "cpu"? config.cpuData: config.gpuData;
 
+        let model = getModel(modelHTML.value);
+        let brand = ""
+        for(let i = 0; i < data.length; i++){
+            current = data[i]
+            if (current["Model"] === model){
+                brand = current["Brand"]
+                break;
+            }
+        }
+        brandHTML.value = brand;
+    })
+}
+changeCpuModelOrGpuModel("cpu");
+changeCpuModelOrGpuModel("gpu");
+
+function dataProcessor(){
+    let data = config.cpuData;
+
+    brand = config.cpuBrand.value;
+    if (brand === "") return data;
+
+    res = [];
+    for(let i = 0; i < data.length; i++){
+        current = data[i];
+        if(current["Brand"] === brand){
+            res.push(current);
+        }
+    }
+    return res;
+}
+
+config.cpuBrand.addEventListener("change", function(){
+    changeOption(dataProcessor(), "Model", config.cpuModel);
+})
 
 // memoryの文字列を解析してmemoryの本数をとる関数
 function getMemoryCount(model){
@@ -259,6 +302,5 @@ function getStorageCapacity(model){
 }
 
 /*
-add buttonの挙動を実装する
 項目間の依存関係を実装する
 */
