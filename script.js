@@ -314,6 +314,7 @@ function behaviorChangeRamModelOrStorageModel(part){
 behaviorChangeRamModelOrStorageModel("ram");
 behaviorChangeRamModelOrStorageModel("storage");
 
+// ram model ようのoption array を作る関数
 function dataProcessorForRamModel(){
     let data = config.memoryData;
 
@@ -324,22 +325,166 @@ function dataProcessorForRamModel(){
     let res = []
 
     for(let i = 0; i < data.length; i++){
-        current = data[i];
+        let current = data[i];
         if ((num === "" || current["num"] === num) && (capacity === "" || current["capacity"] === capacity) && (brand === "" || current["Brand"] === brand)){
             res.push(current);
         }
     }
     return res;
 }
+
+// ram model ようのoption array を作る関数
+function dataProcessorForStorageModel(){
+    let data = config.storageData;
+
+    let type = config.storageType.value;
+    let capacity = config.storageCapacity.value;
+    let brand = config.storageBrand.value;
+
+    let res = []
+
+    for(let i = 0; i < data.length; i++){
+        let current = data[i];
+        if ((type === "" || current["Type"] === type) && (capacity === "" || current["capacity"] === capacity) && (brand === "" || current["Brand"] === brand)){
+            res.push(current);
+        }
+    }
+    return res;
+}
+
+// 汎用memory option changer
+function changeRamOption(element){
+    let target;
+    let value = "";
+    let otherOneStr = "";
+    let otherOne = "";
+    let otherTwoStr = "";
+    let otherTwo = "";
+
+    switch (element){
+        case "Brand":
+            target = config.memoryBrand;
+            value = config.memoryBrand.value;
+            otherOneStr = "num";
+            otherOne = config.memoryNum.value;
+            otherTwoStr = "capacity";
+            otherTwo = config.memoryCapacity.value;
+            break;
+        case "num":
+            target = config.memoryNum;
+            value = config.memoryNum.value;
+            otherOneStr = "Brand";
+            otherOne = config.memoryBrand.value;
+            otherTwoStr = "capacity";
+            otherTwo = config.memoryCapacity.value;
+            break;
+        case "capacity":
+            target = config.memoryCapacity;
+            value = config.memoryCapacity.value;
+            otherOneStr = "Brand";
+            otherOne = config.memoryBrand.value;
+            otherTwoStr = "num";
+            otherTwo = config.memoryNum.value;
+            break
+    }
+
+    let data = config.memoryData;
+    let res = []
+
+    for(let i = 0; i < data.length; i++){
+        let current = data[i]
+        if((otherOne === "" || current[otherOneStr] === otherOne) && (otherTwo === "" || current[otherTwoStr] === otherTwo)){
+            res.push(current)
+        }
+    }
+    changeOption(res, element, target);
+    target.value = value;
+}
+
+// TODO: capacity num の降順表示をする。また後で。
+// ramのevent listenerを実装
 config.memoryBrand.addEventListener("change", function(){
     changeOption(dataProcessorForRamModel(), "Model", config.memoryModel)
+    changeRamOption("num");
+    changeRamOption("capacity");
 })
 config.memoryNum.addEventListener("change", function(){
     changeOption(dataProcessorForRamModel(), "Model", config.memoryModel)
+    changeRamOption("Brand");
+    changeRamOption("capacity");
 })
 config.memoryCapacity.addEventListener("change", function(){
     changeOption(dataProcessorForRamModel(), "Model", config.memoryModel)
+    changeRamOption("Brand");
+    changeRamOption("num");
 })
+
+// 汎用 storage option changer
+function changeStorageOption(element){
+    let target;
+    let value = "";
+    let otherOneStr = "";
+    let otherOne = "";
+    let otherTwoStr = "";
+    let otherTwo = "";
+
+    switch (element){
+        case "Brand":
+            target = config.storageBrand;
+            value = config.storageBrand.value;
+            otherOneStr = "Type";
+            otherOne = config.storageType.value;
+            otherTwoStr = "capacity";
+            otherTwo = config.storageCapacity.value;
+            break;
+        case "Type":
+            target = config.storageType;
+            value = config.storageType.value;
+            otherOneStr = "Brand";
+            otherOne = config.storageBrand.value;
+            otherTwoStr = "capacity";
+            otherTwo = config.storageCapacity.value;
+            break;
+        case "capacity":
+            target = config.storageCapacity;
+            value = config.storageCapacity.value;
+            otherOneStr = "Brand";
+            otherOne = config.storageBrand.value;
+            otherTwoStr = "Type";
+            otherTwo = config.storageType.value;
+            break
+    }
+
+    let data = config.storageData;
+    let res = []
+
+    for(let i = 0; i < data.length; i++){
+        let current = data[i]
+        if((otherOne === "" || current[otherOneStr] === otherOne) && (otherTwo === "" || current[otherTwoStr] === otherTwo)){
+            res.push(current)
+        }
+    }
+    changeOption(res, element, target);
+    target.value = value;
+}
+
+// storageのevent listenerを実装
+config.storageBrand.addEventListener("change", function(){
+    changeOption(dataProcessorForStorageModel(), "Model", config.storageModel)
+    changeStorageOption("Type");
+    changeStorageOption("capacity");
+})
+config.storageType.addEventListener("change", function(){
+    changeOption(dataProcessorForStorageModel(), "Model", config.storageModel)
+    changeStorageOption("Brand");
+    changeStorageOption("capacity");
+})
+config.storageCapacity.addEventListener("change", function(){
+    changeOption(dataProcessorForStorageModel(), "Model", config.storageModel)
+    changeStorageOption("Brand");
+    changeStorageOption("Type");
+})
+
 
 
 function dataProcessorForStorageModel(){
