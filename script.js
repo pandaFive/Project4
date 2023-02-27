@@ -314,6 +314,61 @@ function behaviorChangeRamModelOrStorageModel(part){
 behaviorChangeRamModelOrStorageModel("ram");
 behaviorChangeRamModelOrStorageModel("storage");
 
+function dataProcessorForRamModel(){
+    let data = config.memoryData;
+
+    let num = config.memoryNum.value;
+    let capacity = config.memoryCapacity.value;
+    let brand = config.memoryBrand.value;
+
+    let res = []
+
+    for(let i = 0; i < data.length; i++){
+        current = data[i];
+        if ((num === "" || current["num"] === num) && (capacity === "" || current["capacity"] === capacity) && (brand === "" || current["Brand"] === brand)){
+            res.push(current);
+        }
+    }
+    return res;
+}
+config.memoryBrand.addEventListener("change", function(){
+    changeOption(dataProcessorForRamModel(), "Model", config.memoryModel)
+})
+config.memoryNum.addEventListener("change", function(){
+    changeOption(dataProcessorForRamModel(), "Model", config.memoryModel)
+})
+config.memoryCapacity.addEventListener("change", function(){
+    changeOption(dataProcessorForRamModel(), "Model", config.memoryModel)
+})
+
+
+function dataProcessorForStorageModel(){
+    let data = config.storageData;
+
+    let type = config.storageType.value;
+    let capacity = config.storageCapacity.value;
+    let brand = config.storageBrand.value;
+
+    let res = []
+
+    for(let i = 0; i < data.length; i++){
+        current = data[i];
+        if ((type === "" || current["Type"] === type) && (capacity === "" || current["capacity"] === capacity) && (brand === "" || current["Brand"] === brand)){
+            res.push(current);
+        }
+    }
+    return res;
+}
+config.storageBrand.addEventListener("change", function(){
+    changeOption(dataProcessorForStorageModel(), "Model", config.storageModel)
+})
+config.storageType.addEventListener("change", function(){
+    changeOption(dataProcessorForStorageModel(), "Model", config.storageModel)
+})
+config.storageCapacity.addEventListener("change", function(){
+    changeOption(dataProcessorForStorageModel(), "Model", config.storageModel)
+})
+
 
 // memoryの文字列を解析してmemoryの本数をとる関数
 function getMemoryCount(model){
