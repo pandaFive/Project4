@@ -257,10 +257,10 @@ function changeCpuModelOrGpuModel(part){
 changeCpuModelOrGpuModel("cpu");
 changeCpuModelOrGpuModel("gpu");
 
-function dataProcessor(){
-    let data = config.cpuData;
+function dataProcessor(part){
+    let data = part === "cpu"? config.cpuData: config.gpuData;
 
-    brand = config.cpuBrand.value;
+    brand = part === "cpu"? config.cpuBrand.value: config.gpuBrand.value;
     if (brand === "") return data;
 
     res = [];
@@ -273,9 +273,17 @@ function dataProcessor(){
     return res;
 }
 
-config.cpuBrand.addEventListener("change", function(){
-    changeOption(dataProcessor(), "Model", config.cpuModel);
-})
+// cpuとgpuのbrandが変化したときmodelのoptionを変える関数
+function changeCpuOrGpuModel(part){
+    let brand = part === "cpu"? config.cpuBrand: config.gpuBrand;
+    let model = part === "cpu"? config.cpuModel: config.gpuModel;
+    brand.addEventListener("change", function(){
+        changeOption(dataProcessor(part), "Model",  model);
+    })
+}
+changeCpuOrGpuModel("cpu");
+changeCpuOrGpuModel("gpu");
+
 
 // memoryの文字列を解析してmemoryの本数をとる関数
 function getMemoryCount(model){
