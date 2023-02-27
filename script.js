@@ -257,7 +257,8 @@ function changeCpuModelOrGpuModel(part){
 changeCpuModelOrGpuModel("cpu");
 changeCpuModelOrGpuModel("gpu");
 
-function dataProcessor(part){
+// cpuまたはgpuのbrandのvalueによってarrayを変化させる関数
+function dataProcessorForCpuOrGpu(part){
     let data = part === "cpu"? config.cpuData: config.gpuData;
 
     brand = part === "cpu"? config.cpuBrand.value: config.gpuBrand.value;
@@ -278,11 +279,40 @@ function changeCpuOrGpuModel(part){
     let brand = part === "cpu"? config.cpuBrand: config.gpuBrand;
     let model = part === "cpu"? config.cpuModel: config.gpuModel;
     brand.addEventListener("change", function(){
-        changeOption(dataProcessor(part), "Model",  model);
+        changeOption(dataProcessorForCpuOrGpu(part), "Model",  model);
     })
 }
 changeCpuOrGpuModel("cpu");
 changeCpuOrGpuModel("gpu");
+
+
+// memory storageのvalueが変化したときの挙動を実装する関数
+function behaviorChangeRamModelOrStorageModel(part){
+    let model = part === "ram"? config.memoryModel:config.storageModel;
+
+    parent.addEventListener("change", function(){
+        value = getModel(model.value);
+        data = part === "ram"? config.memoryData: config.storageData;
+        brand = part === "ram"? config.memoryBrand: config.storageBrand;
+        capacity = part === "ram"? config.memoryCapacity: config.storageCapacity;
+
+        for(let i = 0; i < data.length; i++){
+            let current = data[i];
+            if (current["Model"] === value){
+                brand.value = current["Brand"];
+                capacity.value = current["capacity"];
+                if (part === "ram"){
+                    config.memoryNum.value = current["num"];
+                }
+                else{
+                    config.storageType.value = current["Type"];
+                }
+            }
+        }
+    })
+}
+behaviorChangeRamModelOrStorageModel("ram");
+behaviorChangeRamModelOrStorageModel("storage");
 
 
 // memoryの文字列を解析してmemoryの本数をとる関数
