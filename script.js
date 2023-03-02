@@ -486,7 +486,7 @@ config.storageCapacity.addEventListener("change", function(){
 })
 
 
-
+// ramのModelのoptionを作るための配列を作る関数
 function dataProcessorForStorageModel(){
     let data = config.storageData;
 
@@ -538,7 +538,3 @@ function getStorageCapacity(model){
 
     return model.substring(model.lastIndexOf(" ")+1);
 }
-
-/*
-項目間の依存関係を実装する
-*/
