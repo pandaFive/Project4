@@ -1,27 +1,15 @@
 const config = {
     url:  "https://api.recursionist.io/builder/computers",
-    cpuData: [],
-    gpuData: [],
-    memoryData: [],
-    storageData: [],
-    cpuBrand: document.getElementById("cpuBrand"),
-    cpuModel: document.getElementById("cpuModel"),
-    gpuBrand: document.getElementById("gpuBrand"),
-    gpuModel: document.getElementById("gpuModel"),
-    memoryNum: document.getElementById("memoryNum"),
-    memoryCapacity: document.getElementById("memoryCapacity"),
-    memoryBrand: document.getElementById("memoryBrand"),
-    memoryModel: document.getElementById("memoryModel"),
-    storageType: document.getElementById("storageType"),
-    storageCapacity: document.getElementById("storageCapacity"),
-    storageBrand: document.getElementById("storageBrand"),
-    storageModel: document.getElementById("storageModel"),
+    cpu:{data:[], Brand: document.getElementById("cpuBrand"), Model: document.getElementById("cpuModel")},
+    gpu:{data:[], Brand: document.getElementById("gpuBrand"), Model: document.getElementById("gpuModel")},
+    ram:{data:[], Brand: document.getElementById("memoryBrand"), Model: document.getElementById("memoryModel"), capacity: document.getElementById("memoryCapacity"), Num: document.getElementById("memoryNum")},
+    storage:{data:[], Brand: document.getElementById("storageBrand"), Model: document.getElementById("storageModel"), capacity: document.getElementById("storageCapacity"), type: document.getElementById("storageType")},
     add: document.getElementById("addBtn"),
     clear: document.getElementById("clearBtn"),
     results: document.getElementById("results"),
     pcNumber: 1,
 }
-
+config.gpuModel
 // 初期化関数(optionの初期化とconfig.dataのsetをする)
 function initializer(){
     getAPI("cpu");
@@ -44,39 +32,39 @@ function getAPI(part){
 // optionの初期化をする関数
 function initialOption(data, part){
     if(part === "cpu"){
-        addOption(data, "Model", config.cpuModel);
-        addOption(data, "Brand", config.cpuBrand);
-        config.cpuData = data;
+        addOption(data, "Model", config.cpu.Model);
+        addOption(data, "Brand", config.cpu.Brand);
+        config.cpu.data = data;
     }
     else if(part === "gpu"){
-        addOption(data, "Model", config.gpuModel);
-        addOption(data, "Brand", config.gpuBrand);
-        config.gpuData = data;
+        addOption(data, "Model", config.gpu.Model);
+        addOption(data, "Brand", config.gpu.Brand);
+        config.gpu.data = data;
     }
     else if(part === "ram"){
         data = addNumAndCapacity(data);
-        addOption(data, "Model", config.memoryModel);
-        addOption(data, "Brand", config.memoryBrand);
-        addOption(data, "num", config.memoryNum);
-        addOption(data, "capacity", config.memoryCapacity);
-        config.memoryData = data;
+        addOption(data, "Model", config.ram.Model);
+        addOption(data, "Brand", config.ram.Brand);
+        addOption(data, "num", config.ram.Num);
+        addOption(data, "capacity", config.ram.capacity);
+        config.ram.data = data;
     }
     else if(part === "hdd"){
         data = addNumAndCapacity(data);
-        config.storageData = data;
+        config.storage.data = data;
     }
     else{
         data = addNumAndCapacity(data);
-        data = data.concat(config.storageData)
+        data = data.concat(config.storage.data)
         data.sort(function(a,b) {
             if (getCapacityGBNum(a.capacity) > getCapacityGBNum(b.capacity)) return -1;
             if (getCapacityGBNum(a.capacity) < getCapacityGBNum(b.capacity)) return 1;
             return 0
         });
-        addOption(data, "Brand", config.storageBrand);
-        addOption(data, "capacity", config.storageCapacity);
-        addOption(data, "Model", config.storageModel);
-        config.storageData = data;
+        addOption(data, "Brand", config.storage.Brand);
+        addOption(data, "capacity", config.storage.capacity);
+        addOption(data, "Model", config.storage.Model);
+        config.storage.data = data;
     }
 }
 
@@ -149,10 +137,10 @@ config.add.addEventListener("click", function(){
 
 // add button が有効なのか判定し有効ならそのまま続行、無効ならalert
 function checkAdd(){
-    let cpu = config.cpuModel.value
-    let gpu = config.gpuModel.value
-    let ram = config.memoryModel.value
-    let storage = config.storageModel.value
+    let cpu = config.cpu.Model.value
+    let gpu = config.gpu.Model.value
+    let ram = config.ram.Model.value
+    let storage = config.storage.Model.value
 
     if (cpu === "" || gpu === "" || ram === "" || storage === ""){
         alert("Modelが選択されていないパーツがあります")
@@ -207,10 +195,10 @@ function createResult(game, work){
                     <!-- PCの構成 -->
                     <div class="col-sm-6">
                         <h6>PC${config.pcNumber} configuration</h6>
-                        <p>CPU: <strong>${config.cpuBrand.value}</strong><br> ${getModel(config.cpuModel.value)}</p>
-                        <p>GPU: <strong>${config.gpuBrand.value}</strong><br> ${getModel(config.gpuModel.value)}</p>
-                        <p>Memory: <strong>${config.memoryBrand.value}</strong><br> ${getModel(config.memoryModel.value)}</p>
-                        <p>Storage: <strong>${config.storageBrand.value}</strong><br> ${getModel(config.storageModel.value)}</p>
+                        <p>CPU: <strong>${config.cpu.Brand.value}</strong><br> ${getModel(config.cpu.Model.value)}</p>
+                        <p>GPU: <strong>${config.gpu.Brand.value}</strong><br> ${getModel(config.gpu.Model.value)}</p>
+                        <p>Memory: <strong>${config.ram.Brand.value}</strong><br> ${getModel(config.ram.Model.value)}</p>
+                        <p>Storage: <strong>${config.storage.Brand.value}</strong><br> ${getModel(config.storage.Model.value)}</p>
                     </div>
                     <!-- PCのスペック -->
                     <div class="col-sm-5">
@@ -236,11 +224,12 @@ config.clear.addEventListener("click", function(){
 
 // cpuかgpuのモデルがチェンジした時の挙動、パーツ名"cpu" or "gpu"を引数に取る
 function changeCpuModelOrGpuModel(part){
-    let modelHTML = part === "cpu"? config.cpuModel: config.gpuModel;
-    let brandHTML = part === "cpu"? config.cpuBrand: config.gpuBrand
+    let parent = part === "cpu"? config.cpu: config.gpu;
+    let modelHTML = parent.Model;
+    let brandHTML = parent.Brand;
 
     modelHTML.addEventListener("change", function(){
-        let data = part === "cpu"? config.cpuData: config.gpuData;
+        let data = parent.data;
 
         let model = getModel(modelHTML.value);
         let brand = ""
@@ -259,9 +248,10 @@ changeCpuModelOrGpuModel("gpu");
 
 // cpuまたはgpuのbrandのvalueによってarrayを変化させる関数
 function dataProcessorForCpuOrGpu(part){
-    let data = part === "cpu"? config.cpuData: config.gpuData;
+    let parent = part === "cpu"? config.cpu: config.gpu;
+    let data = parent.data;
 
-    brand = part === "cpu"? config.cpuBrand.value: config.gpuBrand.value;
+    let brand = parent.Brand.value;
     if (brand === "") return data;
 
     res = [];
@@ -276,8 +266,9 @@ function dataProcessorForCpuOrGpu(part){
 
 // cpuとgpuのbrandが変化したときmodelのoptionを変える関数
 function changeCpuOrGpuModel(part){
-    let brand = part === "cpu"? config.cpuBrand: config.gpuBrand;
-    let model = part === "cpu"? config.cpuModel: config.gpuModel;
+    let parent = part === "cpu"? config.cpu: config.gpu;
+    let brand = parent.Brand;
+    let model = parent.Model;
     brand.addEventListener("change", function(){
         changeOption(dataProcessorForCpuOrGpu(part), "Model",  model);
     })
@@ -286,15 +277,16 @@ changeCpuOrGpuModel("cpu");
 changeCpuOrGpuModel("gpu");
 
 
-// memory storageのvalueが変化したときの挙動を実装する関数
+// memory storageのmodelのvalueが変化したときの挙動を実装する関数
 function behaviorChangeRamModelOrStorageModel(part){
-    let model = part === "ram"? config.memoryModel:config.storageModel;
+    let parent = part === "ram"? config.ram: config.storage;
+    let model = parent.Model;
 
-    parent.addEventListener("change", function(){
+    model.addEventListener("change", function(){
         value = getModel(model.value);
-        data = part === "ram"? config.memoryData: config.storageData;
-        brand = part === "ram"? config.memoryBrand: config.storageBrand;
-        capacity = part === "ram"? config.memoryCapacity: config.storageCapacity;
+        data = parent.data;
+        brand = parent.Brand;
+        capacity = parent.capacity;
 
         for(let i = 0; i < data.length; i++){
             let current = data[i];
@@ -302,10 +294,10 @@ function behaviorChangeRamModelOrStorageModel(part){
                 brand.value = current["Brand"];
                 capacity.value = current["capacity"];
                 if (part === "ram"){
-                    config.memoryNum.value = current["num"];
+                    config.ram.Num.value = current["num"];
                 }
                 else{
-                    config.storageType.value = current["Type"];
+                    config.storage.type.value = current["Type"];
                 }
             }
         }
@@ -314,46 +306,29 @@ function behaviorChangeRamModelOrStorageModel(part){
 behaviorChangeRamModelOrStorageModel("ram");
 behaviorChangeRamModelOrStorageModel("storage");
 
-// ram model ようのoption array を作る関数
-function dataProcessorForRamModel(){
-    let data = config.memoryData;
+// ramかstorageのmodelのoptionを変更する為のarrayを生成する関数
+function dataProcessorForStorageOrRamModel(part){
+    let parent = part === "ram"? config.ram: config.storage;
 
-    let num = config.memoryNum.value;
-    let capacity = config.memoryCapacity.value;
-    let brand = config.memoryBrand.value;
+    let data = parent.data;
+    let brand = parent.Brand.value;
+    let capacity = parent.capacity.value;
 
+    let other = part === "ram"? parent.Num.value: parent.type.value;
+    let othersStr = part === "ram"? "num": "Type";
     let res = []
-
-    for(let i = 0; i < data.length; i++){
+    for (let i = 0; i < data.length; i++){
         let current = data[i];
-        if ((num === "" || current["num"] === num) && (capacity === "" || current["capacity"] === capacity) && (brand === "" || current["Brand"] === brand)){
+        if ((other === "" || current[othersStr] === other) && (capacity === "" || current["capacity"]) && (brand === "" || current["Brand"] === brand)){
             res.push(current);
         }
     }
-    return res;
+    return res
 }
 
-// ram model ようのoption array を作る関数
-function dataProcessorForStorageModel(){
-    let data = config.storageData;
-
-    let type = config.storageType.value;
-    let capacity = config.storageCapacity.value;
-    let brand = config.storageBrand.value;
-
-    let res = []
-
-    for(let i = 0; i < data.length; i++){
-        let current = data[i];
-        if ((type === "" || current["Type"] === type) && (capacity === "" || current["capacity"] === capacity) && (brand === "" || current["Brand"] === brand)){
-            res.push(current);
-        }
-    }
-    return res;
-}
-
-// 汎用memory option changer
-function changeRamOption(element){
+// 汎用 storage or memory option changer
+function changeStorageOrRamOption(part, element){
+    let parent = part === "ram"? config.ram: config.storage;
     let target;
     let value = "";
     let otherOneStr = "";
@@ -361,34 +336,37 @@ function changeRamOption(element){
     let otherTwoStr = "";
     let otherTwo = "";
 
+    let numOrType = part === "ram"? parent.Num: parent.type;
+    let numOrTypeStr = part === "ram"? "num": "Type"
+
     switch (element){
         case "Brand":
-            target = config.memoryBrand;
-            value = config.memoryBrand.value;
-            otherOneStr = "num";
-            otherOne = config.memoryNum.value;
+            target = parent.Brand;
+            value = parent.Brand.value;
+            otherOneStr = numOrTypeStr;
+            otherOne = numOrType.value;
             otherTwoStr = "capacity";
-            otherTwo = config.memoryCapacity.value;
+            otherTwo = parent.capacity.value;
             break;
-        case "num":
-            target = config.memoryNum;
-            value = config.memoryNum.value;
+        case numOrTypeStr:
+            target = numOrType;
+            value = numOrType.value;
             otherOneStr = "Brand";
-            otherOne = config.memoryBrand.value;
+            otherOne = parent.Brand.value;
             otherTwoStr = "capacity";
-            otherTwo = config.memoryCapacity.value;
+            otherTwo = parent.capacity.value;
             break;
         case "capacity":
-            target = config.memoryCapacity;
-            value = config.memoryCapacity.value;
+            target = parent.capacity;
+            value = parent.capacity.value;
             otherOneStr = "Brand";
-            otherOne = config.memoryBrand.value;
-            otherTwoStr = "num";
-            otherTwo = config.memoryNum.value;
+            otherOne = parent.Brand.value;
+            otherTwoStr = numOrTypeStr;
+            otherTwo = numOrType.value;
             break
     }
 
-    let data = config.memoryData;
+    let data = parent.data;
     let res = []
 
     for(let i = 0; i < data.length; i++){
@@ -397,123 +375,44 @@ function changeRamOption(element){
             res.push(current)
         }
     }
+
     changeOption(res, element, target);
     target.value = value;
 }
 
-// TODO: capacity num の降順表示をする。また後で。
 // ramのevent listenerを実装
-config.memoryBrand.addEventListener("change", function(){
-    changeOption(dataProcessorForRamModel(), "Model", config.memoryModel)
-    changeRamOption("num");
-    changeRamOption("capacity");
+config.ram.Brand.addEventListener("change", function(){
+    changeOption(dataProcessorForStorageOrRamModel("ram"), "Model", config.ram.Model)
+    changeStorageOrRamOption("ram", "num");
+    changeStorageOrRamOption("ram", "capacity");
 })
-config.memoryNum.addEventListener("change", function(){
-    changeOption(dataProcessorForRamModel(), "Model", config.memoryModel)
-    changeRamOption("Brand");
-    changeRamOption("capacity");
+config.ram.Num.addEventListener("change", function(){
+    changeOption(dataProcessorForStorageOrRamModel("ram"), "Model", config.ram.Model)
+    changeStorageOrRamOption("ram", "Brand");
+    changeStorageOrRamOption("ram", "capacity");
 })
-config.memoryCapacity.addEventListener("change", function(){
-    changeOption(dataProcessorForRamModel(), "Model", config.memoryModel)
-    changeRamOption("Brand");
-    changeRamOption("num");
+config.ram.capacity.addEventListener("change", function(){
+    changeOption(dataProcessorForStorageOrRamModel("ram"), "Model", config.ram.Model)
+    changeStorageOrRamOption("ram", "Brand");
+    changeStorageOrRamOption("ram", "num");
 })
-
-// 汎用 storage option changer
-function changeStorageOption(element){
-    let target;
-    let value = "";
-    let otherOneStr = "";
-    let otherOne = "";
-    let otherTwoStr = "";
-    let otherTwo = "";
-
-    switch (element){
-        case "Brand":
-            target = config.storageBrand;
-            value = config.storageBrand.value;
-            otherOneStr = "Type";
-            otherOne = config.storageType.value;
-            otherTwoStr = "capacity";
-            otherTwo = config.storageCapacity.value;
-            break;
-        case "Type":
-            target = config.storageType;
-            value = config.storageType.value;
-            otherOneStr = "Brand";
-            otherOne = config.storageBrand.value;
-            otherTwoStr = "capacity";
-            otherTwo = config.storageCapacity.value;
-            break;
-        case "capacity":
-            target = config.storageCapacity;
-            value = config.storageCapacity.value;
-            otherOneStr = "Brand";
-            otherOne = config.storageBrand.value;
-            otherTwoStr = "Type";
-            otherTwo = config.storageType.value;
-            break
-    }
-
-    let data = config.storageData;
-    let res = []
-
-    for(let i = 0; i < data.length; i++){
-        let current = data[i]
-        if((otherOne === "" || current[otherOneStr] === otherOne) && (otherTwo === "" || current[otherTwoStr] === otherTwo)){
-            res.push(current)
-        }
-    }
-    changeOption(res, element, target);
-    target.value = value;
-}
 
 // storageのevent listenerを実装
-config.storageBrand.addEventListener("change", function(){
-    changeOption(dataProcessorForStorageModel(), "Model", config.storageModel)
-    changeStorageOption("Type");
-    changeStorageOption("capacity");
+config.storage.Brand.addEventListener("change", function(){
+    changeOption(dataProcessorForStorageOrRamModel("storage"), "Model", config.storage.Model)
+    changeStorageOrRamOption("storage", "Type");
+    changeStorageOrRamOption("storage", "capacity");
 })
-config.storageType.addEventListener("change", function(){
-    changeOption(dataProcessorForStorageModel(), "Model", config.storageModel)
-    changeStorageOption("Brand");
-    changeStorageOption("capacity");
+config.storage.type.addEventListener("change", function(){
+    changeOption(dataProcessorForStorageOrRamModel("storage"), "Model", config.storage.Model)
+    changeStorageOrRamOption("storage", "Brand");
+    changeStorageOrRamOption("storage", "capacity");
 })
-config.storageCapacity.addEventListener("change", function(){
-    changeOption(dataProcessorForStorageModel(), "Model", config.storageModel)
-    changeStorageOption("Brand");
-    changeStorageOption("Type");
+config.storage.capacity.addEventListener("change", function(){
+    changeOption(dataProcessorForStorageOrRamModel("storage"), "Model", config.storage.Model)
+    changeStorageOrRamOption("storage", "Brand");
+    changeStorageOrRamOption("storage", "Type");
 })
-
-
-
-function dataProcessorForStorageModel(){
-    let data = config.storageData;
-
-    let type = config.storageType.value;
-    let capacity = config.storageCapacity.value;
-    let brand = config.storageBrand.value;
-
-    let res = []
-
-    for(let i = 0; i < data.length; i++){
-        current = data[i];
-        if ((type === "" || current["Type"] === type) && (capacity === "" || current["capacity"] === capacity) && (brand === "" || current["Brand"] === brand)){
-            res.push(current);
-        }
-    }
-    return res;
-}
-config.storageBrand.addEventListener("change", function(){
-    changeOption(dataProcessorForStorageModel(), "Model", config.storageModel)
-})
-config.storageType.addEventListener("change", function(){
-    changeOption(dataProcessorForStorageModel(), "Model", config.storageModel)
-})
-config.storageCapacity.addEventListener("change", function(){
-    changeOption(dataProcessorForStorageModel(), "Model", config.storageModel)
-})
-
 
 // memoryの文字列を解析してmemoryの本数をとる関数
 function getMemoryCount(model){
@@ -538,7 +437,3 @@ function getStorageCapacity(model){
 
     return model.substring(model.lastIndexOf(" ")+1);
 }
-
-/*
-項目間の依存関係を実装する
-*/
