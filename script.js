@@ -408,6 +408,11 @@ config.storage.type.addEventListener("change", function(){
     changeStorageOrRamOption("storage", "Brand");
     changeStorageOrRamOption("storage", "capacity");
 })
+config.storage.capacity.addEventListener("change", function(){
+    changeOption(dataProcessorForStorageOrRamModel("storage"), "Model", config.storage.Model)
+    changeStorageOrRamOption("storage", "Brand");
+    changeStorageOrRamOption("storage", "Type");
+})
 
 // memoryの文字列を解析してmemoryの本数をとる関数
 function getMemoryCount(model){
